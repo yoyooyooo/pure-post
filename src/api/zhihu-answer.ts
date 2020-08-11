@@ -1,5 +1,4 @@
 import { getFinalHTML, getQuestionDetial, getQuestionId } from '../utils/';
-import config from '@/utils/config.json';
 import { NowRequest, NowResponse } from '@now/node';
 import axios from 'axios';
 import cheerio from 'cheerio';
