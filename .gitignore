@@ -1,0 +1,6 @@
+.now
+.vscode
+pnpm-lock.yaml
+node_modules
+src/utils/config.json
+.vercel
