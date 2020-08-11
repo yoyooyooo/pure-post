@@ -3,7 +3,7 @@ import { NowRequest, NowResponse } from '@now/node';
 import axios from 'axios';
 import cheerio from 'cheerio';
 
-const refererUrl = `https://${process.env.PREFIX_URL}.now.sh/api/image?url=`;
+const refererUrl = `https://${process.env.PREFIX_URL}.vercel.app/api/image?url=`;
 
 async function getHTML(url: string, { z_c0 }) {
   url = url.split('?')[0];
