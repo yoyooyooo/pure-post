@@ -4,3 +4,5 @@ pnpm-lock.yaml
 node_modules
 src/utils/config.json
 .vercel
+index.ts
+index.html

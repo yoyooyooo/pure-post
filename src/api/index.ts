@@ -14,7 +14,7 @@ export default async (req: NowRequest, res: NowResponse) => {
   console.log('matchKey', matchKey, urlMap.get(matchKey));
   if (matchKey) {
     const r = await axios(
-      `https://${process.env.PREFIX_URL}.now.sh/api/${urlMap.get(matchKey)}?url=${url}`,
+      `https://${process.env.PREFIX_URL}.vercel.app/api/${urlMap.get(matchKey)}?url=${url}`,
       {}
     );
     res.end(r.data);

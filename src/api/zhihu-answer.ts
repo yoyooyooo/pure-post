@@ -1,13 +1,9 @@
 import { getFinalHTML, getQuestionDetial, getQuestionId } from '../utils/';
-import config from '../utils/config.json';
 import { NowRequest, NowResponse } from '@now/node';
 import axios from 'axios';
 import cheerio from 'cheerio';
 
-// const refererUrl = '';
-// const refererUrl = 'https://images.weserv.nl/?url=';
 const refererUrl = `https://${process.env.PREFIX_URL}.now.sh/api/image?url=`;
-// const refererUrl = 'https://zhihu-reader.now.sh/api/image?url=';
 
 async function getHTML(url: string, { z_c0 }) {
   url = url.split('?')[0];
@@ -15,9 +11,9 @@ async function getHTML(url: string, { z_c0 }) {
   const res = await axios(url, {
     headers: {
       Referer: url,
-      Authorization: 'oauth c3cef7c66a1843f8b3a9e6a1e3160e20'
-      // 'User-Agent':
-      //   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36',
+      Authorization: 'oauth c3cef7c66a1843f8b3a9e6a1e3160e20',
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'
       // cookie: `z_c0="${z_c0 || config.z_c0}"`
     }
   });
@@ -73,8 +69,6 @@ async function getHTML(url: string, { z_c0 }) {
   const html = getFinalHTML({ title, html: contentNode.html() });
   return html;
 }
-
-// getHTML('https://www.zhihu.com/question/377571521/answer/1121219239');
 
 export default async (req: NowRequest, res: NowResponse) => {
   const { url, z_c0 } = req.query as any;
