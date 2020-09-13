@@ -15,6 +15,7 @@ export default async (req: NowRequest, res: NowResponse) => {
   const $ = cheerio.load(data, { decodeEntities: false });
 
   $('.ZhihuDailyOIABanner').remove();
+  $('.view-more').remove();
   $('.CornerButtons').remove();
   $('.answer').prepend(`
     <div class="ZhihuDaily-AuthorLine">
