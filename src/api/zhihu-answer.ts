@@ -5,7 +5,7 @@ import cheerio from 'cheerio';
 
 const refererUrl = `https://${process.env.PREFIX_URL}.vercel.app/api/image?url=`;
 
-async function getHTML(url: string, { z_c0 }) {
+async function getHTML(url: string, { z_c0, pure }) {
   url = url.split('?')[0];
   console.log(`url  ===>  ${url}`);
   const res = await axios(url, {
@@ -66,14 +66,17 @@ async function getHTML(url: string, { z_c0 }) {
     }
   });
 
-  const html = getFinalHTML({ title, html: contentNode.html() });
-  return html;
+  if (pure) {
+    return contentNode.text();
+  } else {
+    return getFinalHTML({ title, html: contentNode.html() });
+  }
 }
 
 export default async (req: NowRequest, res: NowResponse) => {
-  const { url, z_c0 } = req.query as any;
+  const { url, z_c0, pure } = req.query as any;
   try {
-    res.send(await getHTML(url, { z_c0 }));
+    res.send(await getHTML(url, { z_c0, pure }));
   } catch (err) {
     res.send(`something wrong ${JSON.stringify(err?.message)} ${JSON.stringify(err)}`);
   }
