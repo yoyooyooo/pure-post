@@ -15,9 +15,9 @@ export default async (req: NowRequest, res: NowResponse) => {
   console.log('pure', pure, typeof pure, !!pure);
   if (matchKey) {
     const r = await axios(
-      `https://${process.env.PREFIX_URL}.vercel.app/api/${urlMap.get(
-        matchKey
-      )}?url=${url}&pure=${!!pure}`,
+      `https://${process.env.PREFIX_URL}.vercel.app/api/${urlMap.get(matchKey)}?url=${url}${
+        !!pure ? `&pure=true` : ''
+      }`,
       {}
     );
     res.end(r.data);
