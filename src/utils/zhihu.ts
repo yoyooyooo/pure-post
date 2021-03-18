@@ -1,4 +1,6 @@
-import axios from 'axios';
+import { NowRequest, NowResponse } from "@now/node";
+import cheerio from "cheerio";
+import axios from "axios";
 
 export function getQuestionId(url: string) {
   return url.match(/.*question\/(.+)\/answer.*/)[1];
@@ -482,4 +484,126 @@ export function getFinalHTML({
     </body>
   </html>
   `;
+}
+
+export async function getResponse({
+  $,
+  contentNode,
+  res,
+  req,
+  wrapHTML,
+  title
+}: {
+  $: any;
+  contentNode: any;
+  req: NowRequest;
+  res: NowResponse;
+  wrapHTML: boolean;
+  title?: string;
+}) {
+  console.log("getResponse", req.query);
+  const {
+    url,
+    markdown,
+    imagePrefix: isImagePrefix,
+    markdownArray,
+    markdownHTML
+  } = (req.query as unknown) as ZHIHU.query;
+  const imagePrefix = isImagePrefix
+    ? `https://${process.env.PREFIX_URL}.vercel.app/api/image?url=`
+    : "";
+
+  const imgs = $(contentNode).find("img");
+
+  imgs.map((i, img) => {
+    const src = $(img).attr("src");
+    const original = $(img).attr("data-original");
+    const actualsrc = $(img).attr("data-actualsrc");
+    let _src = original || actualsrc || src;
+
+    const srcset = $(img).attr("srcset");
+    srcset &&
+      $(img).attr("srcset", srcset.replace(/(https.*?\.(jpg|png|jpeg))/g, `${imagePrefix}$1`));
+
+    if (_src) {
+      // console.log("img src:  ", _src);
+      if (_src.startsWith("https://www.zhihu.com/equation?tex=")) {
+        if (markdown) {
+          $(img).replaceWith(`<span>$$${$(img).attr("alt")}$$</span>`);
+        }
+      } else {
+        if (_src.endsWith("gif")) {
+          $(img).attr("src", `https://images.weserv.nl/?url=${_src}`);
+        } else {
+          $(img).attr("src", imagePrefix + _src + (imagePrefix ? `&referer=${url}` : ""));
+        }
+      }
+    }
+  });
+
+  if (!!+markdown || !!+markdownArray || !!+markdownHTML) {
+    const children = contentNode.children();
+    const ret = children.map((i, el) => {
+      const mHeading = el.name.match(/h(1|2|3)/);
+      if (mHeading) {
+        const heading = mHeading[1];
+        return "#".repeat(+heading) + " " + $(el).text().trim();
+      }
+      if (el.name === "blockquote") {
+        return "> " + $(el).text().trim();
+      }
+      if (el.name === "figure") {
+        const $img = $(el).find("img");
+        const alt = $(el).find("figcaption").text();
+        const src = $img.attr("src");
+        const original = $img.attr("data-original");
+        const actualsrc = $img.attr("data-actualsrc");
+        let _src = original || actualsrc || src;
+        return `![${alt}](${_src})`;
+      }
+      if (el.name === "hr") {
+        return "---";
+      }
+      if (el.name === "a" && el.attribs.class === "video-box") {
+        const url = decodeURIComponent(el.attribs.href).match(
+          /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
+        )?.[1];
+        return url && `[${$(el).find(".title")?.text() || " "}](${url})`;
+      }
+      if (el.name === "p") {
+        $(el)
+          .find("a")
+          .map((i, a) => {
+            if (a.attribs.class === "video-box") {
+              const url = decodeURIComponent(a.attribs.href).match(
+                /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
+              )?.[1];
+              url && $(a).replaceWith(`[${$(a).find(".title")?.text() || " "}](${url})`);
+            } else {
+              // 外链
+              $(a).replaceWith(`[${$(a).text()}](${a.attribs.href})`);
+            }
+          });
+        // 加粗
+        $(el)
+          .find("b")
+          .map((i, b) => $(b).replaceWith(`**${$(b).text()}**`));
+        return $(el).text().trim();
+      }
+    });
+    const list = ret.toArray().filter(Boolean);
+    if (markdownHTML) {
+      res.send(list.map((a) => `<p>${a}</p>`).join("\n"));
+      return;
+    } else {
+      res.send(!!+markdownArray ? list : list.join("\n"));
+      return;
+    }
+  }
+
+  if (wrapHTML) {
+    res.send(getFinalHTML({ title, html: contentNode.html() }));
+  } else {
+    res.send($.html());
+  }
 }
