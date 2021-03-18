@@ -1,9 +1,9 @@
-import { NowRequest, NowResponse } from "@now/node";
+import { VercelRequest, VercelResponse } from "@vercel/node";
 import axios from "axios";
 import cheerio from "cheerio";
 import { getQuestionDetial, getQuestionId, getResponse } from "../utils/zhihu";
 
-export default async (req: NowRequest, res: NowResponse) => {
+export default async (req: VercelRequest, res: VercelResponse) => {
   const {
     url,
     markdown,
@@ -58,5 +58,5 @@ export default async (req: NowRequest, res: NowResponse) => {
       .append(`<div style="text-align: right;">原答案：${url}`);
   }
 
-  getResponse({ res, req, $, contentNode, title, wrapHTML: true });
+  getResponse({ res, req, $, contentNode, title, detail, wrapHTML: true });
 };

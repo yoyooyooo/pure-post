@@ -1,9 +1,9 @@
 import { getResponse } from "../utils/zhihu";
-import { NowRequest, NowResponse } from "@now/node";
+import { VercelRequest, VercelResponse } from "@vercel/node";
 import axios from "axios";
 import cheerio from "cheerio";
 
-export default async (req: NowRequest, res: NowResponse) => {
+export default async (req: VercelRequest, res: VercelResponse) => {
   const { url } = req.query as any;
   const { data } = await axios(url, {
     headers: {
@@ -28,6 +28,7 @@ export default async (req: NowRequest, res: NowResponse) => {
   $("body").replaceWith($(".App-main"));
 
   const contentNode = $(".answer .content");
+  const title = $(".DailyHeader-title").text();
 
-  getResponse({ res, req, $, contentNode, wrapHTML: false });
+  getResponse({ res, req, $, contentNode, title, wrapHTML: false });
 };

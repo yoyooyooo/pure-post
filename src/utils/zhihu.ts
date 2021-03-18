@@ -1,4 +1,4 @@
-import { NowRequest, NowResponse } from "@now/node";
+import { VercelRequest, VercelResponse } from "@vercel/node";
 import cheerio from "cheerio";
 import axios from "axios";
 
@@ -492,14 +492,16 @@ export async function getResponse({
   res,
   req,
   wrapHTML,
-  title
+  title,
+  detail
 }: {
   $: any;
   contentNode: any;
-  req: NowRequest;
-  res: NowResponse;
+  req: VercelRequest;
+  res: VercelResponse;
   wrapHTML: boolean;
   title?: string;
+  detail?: string;
 }) {
   console.log("getResponse", req.query);
   const {
@@ -559,7 +561,7 @@ export async function getResponse({
         const original = $img.attr("data-original");
         const actualsrc = $img.attr("data-actualsrc");
         let _src = original || actualsrc || src;
-        return `![${alt}](${_src})`;
+        return `![${alt.replace(/\[|\]/g, "")}](${_src})`;
       }
       if (el.name === "hr") {
         return "---";
@@ -568,7 +570,7 @@ export async function getResponse({
         const url = decodeURIComponent(el.attribs.href).match(
           /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
         )?.[1];
-        return url && `[${$(el).find(".title")?.text() || " "}](${url})`;
+        return url && `[${$(el).find(".title")?.text().replace(/\[|\]/g, "") || " "}](${url})`;
       }
       if (el.name === "p") {
         $(el)
@@ -578,10 +580,13 @@ export async function getResponse({
               const url = decodeURIComponent(a.attribs.href).match(
                 /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
               )?.[1];
-              url && $(a).replaceWith(`[${$(a).find(".title")?.text() || " "}](${url})`);
+              url &&
+                $(a).replaceWith(
+                  `[${$(a).find(".title")?.text().replace(/\[|\]/g, "") || " "}](${url})`
+                );
             } else {
               // 外链
-              $(a).replaceWith(`[${$(a).text()}](${a.attribs.href})`);
+              $(a).replaceWith(`[${$(a).text().replace(/\[|\]/g, "")}](${a.attribs.href})`);
             }
           });
         // 加粗
@@ -592,6 +597,8 @@ export async function getResponse({
       }
     });
     const list = ret.toArray().filter(Boolean);
+    const head = [title, detail].filter(Boolean);
+    head.length && list.unshift(...head, "---");
     if (markdownHTML) {
       res.send(list.map((a) => `<p>${a}</p>`).join("\n"));
       return;
