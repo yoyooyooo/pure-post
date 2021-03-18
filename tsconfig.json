@@ -13,5 +13,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "./typings.d.ts"],
+  "typeRoots": ["typings.d.ts"]
 }
