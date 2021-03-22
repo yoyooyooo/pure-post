@@ -53,7 +53,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       .append(`<div style="text-align: right;">作者：https:${author.find("a").attr("href")}</div>`)
       .append(`<div style="text-align: right;">原答案：${url}`);
   } else {
-    detail = cheerio.load(data, { decodeEntities: false })(`<span>${detail}</span>`).text();
+    if (detail) {
+      detail = cheerio.load(data, { decodeEntities: false })(`<span>${detail}</span>`).text();
+    }
   }
 
   getResponse({ res, req, $, contentNode, title, detail, wrapHTML: true });
