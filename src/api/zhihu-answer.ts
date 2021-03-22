@@ -39,10 +39,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
   if (!contentNode) return "no content";
   console.log(`title  ===>  ${title}`);
-  console.log(
-    { markdown, markdownArray, markdownHTML },
-    !+markdown && !+markdownArray && !+markdownHTML
-  );
   if (!+markdown && !+markdownArray && !+markdownHTML) {
     contentNode
       .prepend(
@@ -56,6 +52,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       .append(author)
       .append(`<div style="text-align: right;">作者：https:${author.find("a").attr("href")}</div>`)
       .append(`<div style="text-align: right;">原答案：${url}`);
+  } else {
+    detail = cheerio.load(data, { decodeEntities: false })(`<span>${detail}</span>`).text();
   }
 
   getResponse({ res, req, $, contentNode, title, detail, wrapHTML: true });
