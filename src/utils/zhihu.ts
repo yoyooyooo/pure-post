@@ -558,71 +558,74 @@ export async function getResponse({
       return children
         .toArray()
         .flatMap((el) => {
-          const mHeading = el.name.match(/h(1|2|3)/);
-          if (mHeading) {
-            const heading = mHeading[1];
-            return "#".repeat(+heading) + " " + $(el).text().trim();
-          }
-          if (el.name === "blockquote") {
-            return "> " + getMarkdown($(el).children()).join("\n");
-          }
-          if (el.name === "figure") {
-            const $img = $(el).find("img");
-            const alt = $(el).find("figcaption").text();
-            const src = $img.attr("src");
-            const original = $img.attr("data-original");
-            const actualsrc = $img.attr("data-actualsrc");
-            let _src = original || actualsrc || src;
-            return `![${alt.replace(/\[|\]/g, "")}](${_src})`;
-          }
-          if (el.name === "hr") {
-            return "---";
-          }
-          if (el.name === "a") {
-            if (el.attribs.class === "video-box") {
-              const url = decodeURIComponent(el.attribs.href).match(
-                /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
-              )?.[1];
-              return (
-                url && `[${$(el).find(".title")?.text().replace(/\[|\]/g, "") || " "}](${url})`
-              );
-            } else if (el.attribs.class.includes("LinkCard")) {
-              return `[${$(el).find(".LinkCard-title").text()}](${el.attribs.href})`;
+          if (el.type === "text") {
+            return el.data;
+          } else if (el.type === "tag") {
+            const mHeading = el.name.match(/h(1|2|3)/);
+            if (mHeading) {
+              const heading = mHeading[1];
+              return "#".repeat(+heading) + " " + $(el).text().trim();
             }
-          }
-          if (el.name === "p") {
+            if (el.name === "blockquote") {
+              return "> " + getMarkdown($(el).contents()).join("\n");
+            }
+            if (el.name === "figure") {
+              const $img = $(el).find("img");
+              const alt = $(el).find("figcaption").text();
+              const src = $img.attr("src");
+              const original = $img.attr("data-original");
+              const actualsrc = $img.attr("data-actualsrc");
+              let _src = original || actualsrc || src;
+              return `![${alt.replace(/\[|\]/g, "")}](${_src})`;
+            }
+            if (el.name === "hr") {
+              return "---";
+            }
+            if (el.name === "a") {
+              if (el.attribs.class === "video-box") {
+                const url = decodeURIComponent(el.attribs.href).match(
+                  /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
+                )?.[1];
+                return (
+                  url && `[${$(el).find(".title")?.text().replace(/\[|\]/g, "") || " "}](${url})`
+                );
+              } else if (el.attribs.class.includes("LinkCard")) {
+                return `[${$(el).find(".LinkCard-title").text()}](${el.attribs.href})`;
+              }
+            }
+            if (el.name === "p") {
+              $(el)
+                .find("a")
+                .map((i, a) => {
+                  if (a.attribs.class === "video-box") {
+                    const url = decodeURIComponent(a.attribs.href).match(
+                      /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
+                    )?.[1];
+                    url &&
+                      $(a).replaceWith(
+                        `[${$(a).find(".title")?.text().replace(/\[|\]/g, "") || " "}](${url})`
+                      );
+                  } else {
+                    // 外链
+                    $(a).replaceWith(`[${$(a).text().replace(/\[|\]/g, "")}](${a.attribs.href})`);
+                  }
+                });
+            }
+            if (el.name === "ol") {
+              return getMarkdown($(el).contents()).map((a, i) => `${i + 1}. ${a}`);
+            }
+            // 加粗
             $(el)
-              .find("a")
-              .map((i, a) => {
-                if (a.attribs.class === "video-box") {
-                  const url = decodeURIComponent(a.attribs.href).match(
-                    /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
-                  )?.[1];
-                  url &&
-                    $(a).replaceWith(
-                      `[${$(a).find(".title")?.text().replace(/\[|\]/g, "") || " "}](${url})`
-                    );
-                } else {
-                  // 外链
-                  $(a).replaceWith(`[${$(a).text().replace(/\[|\]/g, "")}](${a.attribs.href})`);
-                }
-              });
-          }
-          if (el.name === "ol") {
-            return getMarkdown($(el).children()).map((a, i) => `${i + 1}. ${a}`);
-          }
-          // 加粗
-          $(el)
-            .find("b")
-            .map((i, b) => $(b).replaceWith(`**${$(b).text()}**`));
+              .find("b")
+              .map((i, b) => $(b).replaceWith(`**${$(b).text()}**`));
 
-          return $(el).text().trim();
+            return $(el).text().trim();
+          }
         })
-
         .filter(Boolean);
     };
 
-    const list = getMarkdown(contentNode.children());
+    const list = getMarkdown(contentNode.contents());
     const head = [title, detail].filter(Boolean);
     head.length && list.unshift(...head, "---");
     if (markdownHTML) {
