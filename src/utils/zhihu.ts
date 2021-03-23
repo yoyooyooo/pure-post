@@ -534,9 +534,9 @@ export async function getResponse({
           if (isMarkdown) {
             const alt = $(img).attr("alt");
             if (alt === "[公式]") {
-              $(img).replaceWith(`<span>$$${$(img).attr("data-formula")}$$</span>`);
+              $(img).replaceWith(`<span> $$${$(img).attr("data-formula")}$$ </span>`);
             } else {
-              $(img).replaceWith(`<span>$$${alt}$$</span>`);
+              $(img).replaceWith(`<span> $$${alt}$$ </span>`);
             }
           }
         } else {
@@ -561,6 +561,11 @@ export async function getResponse({
           if (el.type === "text") {
             return el.data;
           } else if (el.type === "tag") {
+            // 加粗
+            $(el)
+              .find("b")
+              .map((i, b) => $(b).replaceWith(`**${$(b).text()}**`));
+
             const mHeading = el.name.match(/h(1|2|3)/);
             if (mHeading) {
               const heading = mHeading[1];
@@ -583,12 +588,9 @@ export async function getResponse({
             }
             if (el.name === "a") {
               if (el.attribs.class === "video-box") {
-                const url = decodeURIComponent(el.attribs.href).match(
-                  /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
-                )?.[1];
-                return (
-                  url && `[${$(el).find(".title")?.text().replace(/\[|\]/g, "") || " "}](${url})`
-                );
+                return `[${$(el).find(".title")?.text().replace(/\[|\]/g, "") || " "}](${
+                  el.attribs.href
+                })`;
               } else if (el.attribs.class.includes("LinkCard")) {
                 return `[${$(el).find(".LinkCard-title").text()}](${el.attribs.href})`;
               }
@@ -614,17 +616,28 @@ export async function getResponse({
             if (el.name === "ol") {
               return getMarkdown($(el).contents()).map((a, i) => `${i + 1}. ${a}`);
             }
-            // 加粗
-            $(el)
-              .find("b")
-              .map((i, b) => $(b).replaceWith(`**${$(b).text()}**`));
+
+            if (el.name === "div" && el.attribs.class === "highlight") {
+              const $codes = $(el).find("code");
+              if ($codes.length > 0) {
+                const $code = $codes.eq(0);
+                const language = $code.attr("class").match(/language-(.*)/)?.[1] || "";
+                return `\`\`\`${language}
+${$code.text().replace(/(\n)$/, "")}\`\`\``;
+              }
+            }
 
             return $(el).text().trim();
           }
         })
         .filter(Boolean);
     };
-
+    contentNode.find("a").map((i, a) => {
+      const url = decodeURIComponent(a.attribs.href).match(
+        /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
+      )?.[1];
+      $(a).attr("href", url);
+    });
     const list = getMarkdown(contentNode.contents());
     const head = [title, detail].filter(Boolean);
     head.length && list.unshift(...head, "---");
