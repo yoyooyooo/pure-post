@@ -591,7 +591,7 @@ export async function getResponse({
                 return `[${$(el).find(".title")?.text().replace(/\[|\]/g, "") || " "}](${
                   el.attribs.href
                 })`;
-              } else if (el.attribs.class.includes("LinkCard")) {
+              } else if (el.attribs.class?.includes("LinkCard")) {
                 return `[${$(el).find(".LinkCard-title").text()}](${el.attribs.href})`;
               }
             }

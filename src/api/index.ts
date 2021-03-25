@@ -1,9 +1,9 @@
-import { NowRequest, NowResponse } from "@vercel/node";
+import { VercelRequest, VercelResponse } from "@vercel/node";
 import axios from "axios";
 import qs from "querystring";
 import urlMap from "../utils/urlMap";
 
-export default async (req: NowRequest, res: NowResponse) => {
+export default async (req: VercelRequest, res: VercelResponse) => {
   const query = req.query as any;
   const matchKey = [...urlMap.keys()].find((reg) => reg.test(query.url));
   console.log("matchKey", matchKey, urlMap.get(matchKey));
