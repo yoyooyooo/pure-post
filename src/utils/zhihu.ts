@@ -613,7 +613,7 @@ export async function getResponse({
                   }
                 });
             }
-            if (el.name === "ol") {
+            if (el.name === "ol" || el.name === "ul") {
               return getMarkdown($(el).contents()).map((a, i) => `${i + 1}. ${a}`);
             }
 
@@ -630,7 +630,7 @@ ${$code.text().replace(/(\n)$/, "")}\`\`\``;
             return $(el).text().trim();
           }
         })
-        .filter(Boolean);
+        .filter((a) => !!a && a !== "\n");
     };
     contentNode.find("a").map((i, a) => {
       const url = decodeURIComponent(a.attribs.href).match(
