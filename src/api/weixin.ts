@@ -12,6 +12,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
   });
   const $ = cheerio.load(data, { decodeEntities: false });
+  $("#js_pc_qr_code").map((i, a) => $(a).remove()); // 二维码
   $('#js_content > [data-tools="135编辑器"]').map((i, a) => $(a).remove());
   return $.html();
 };
