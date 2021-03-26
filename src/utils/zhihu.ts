@@ -561,6 +561,23 @@ export async function getResponse({
           if (el.type === "text") {
             return el.data;
           } else if (el.type === "tag") {
+            // 链接
+            $(el)
+              .find("a")
+              .map((i, a) => {
+                if (a.attribs.class === "video-box") {
+                  const url = decodeURIComponent(a.attribs.href).match(
+                    /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
+                  )?.[1];
+                  url &&
+                    $(a).replaceWith(
+                      `[${$(a).find(".title")?.text().replace(/\[|\]/g, "") || " "}](${url})`
+                    );
+                } else {
+                  // 外链
+                  $(a).replaceWith(`[${$(a).text().replace(/\[|\]/g, "")}](${a.attribs.href})`);
+                }
+              });
             // 加粗
             $(el)
               .find("b")
@@ -596,25 +613,20 @@ export async function getResponse({
               }
             }
             if (el.name === "p") {
-              $(el)
-                .find("a")
-                .map((i, a) => {
-                  if (a.attribs.class === "video-box") {
-                    const url = decodeURIComponent(a.attribs.href).match(
-                      /https?\:\/\/link\.zhihu\.com\/\?target=(.*)/
-                    )?.[1];
-                    url &&
-                      $(a).replaceWith(
-                        `[${$(a).find(".title")?.text().replace(/\[|\]/g, "") || " "}](${url})`
-                      );
-                  } else {
-                    // 外链
-                    $(a).replaceWith(`[${$(a).text().replace(/\[|\]/g, "")}](${a.attribs.href})`);
-                  }
-                });
             }
             if (el.name === "ol" || el.name === "ul") {
-              return getMarkdown($(el).contents()).map((a, i) => `${i + 1}. ${a}`);
+              if (el.attribs?.class === "ReferenceList") {
+                return $(el)
+                  .contents()
+                  .toArray()
+                  .map((a) => {
+                    const id = a.attribs.id;
+                    const content = $(a).find("span").text();
+                    return `[^](#${id})${content}`;
+                  });
+              } else {
+                return getMarkdown($(el).contents()).map((a, i) => `${i + 1}. ${a}`);
+              }
             }
 
             if (el.name === "div" && el.attribs.class === "highlight") {
