@@ -554,7 +554,7 @@ export async function getResponse({
   handleImages(imgs);
 
   if (isMarkdown) {
-    const getMarkdown = (children) => {
+    const getMarkdown = (children, filter = true) => {
       return children
         .toArray()
         .flatMap((el) => {
@@ -588,8 +588,12 @@ export async function getResponse({
               const heading = mHeading[1];
               return "#".repeat(+heading) + " " + $(el).text().trim();
             }
+            // 一般的换行都会被最后过滤掉，只有引用blockquote内的会被保留
+            if (el.name === "br") {
+              return "\n";
+            }
             if (el.name === "blockquote") {
-              return "> " + getMarkdown($(el).contents()).join("\n");
+              return "> " + getMarkdown($(el).contents(), false).join("");
             }
             if (el.name === "figure") {
               const $img = $(el).find("img");
@@ -642,7 +646,7 @@ ${$code.text().replace(/(\n)$/, "")}\`\`\``;
             return $(el).text().trim();
           }
         })
-        .filter((a) => !!a && a !== "\n");
+        .filter((a) => (filter ? !!a && a !== "\n" : true));
     };
     contentNode.find("a").map((i, a) => {
       const url = decodeURIComponent(a.attribs.href).match(
