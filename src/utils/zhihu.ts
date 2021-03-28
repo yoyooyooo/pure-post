@@ -582,6 +582,9 @@ export async function getResponse({
             $(el)
               .find("b")
               .map((i, b) => $(b).replaceWith(`**${$(b).text()}**`));
+            $(el)
+              .find("strong")
+              .map((i, b) => $(b).replaceWith(`**${$(b).text()}**`));
 
             const mHeading = el.name.match(/h(1|2|3)/);
             if (mHeading) {
