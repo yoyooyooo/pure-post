@@ -533,11 +533,9 @@ export async function getResponse({
         if (_src.startsWith("https://www.zhihu.com/equation?tex=")) {
           if (isMarkdown) {
             const alt = $(img).attr("alt");
-            if (alt === "[公式]") {
-              $(img).replaceWith(`<span> $$${$(img).attr("data-formula")}$$ </span>`);
-            } else {
-              $(img).replaceWith(`<span> $$${alt}$$ </span>`);
-            }
+            let formula = alt === "[公式]" ? $(img).attr("data-formula") : alt;
+            formula = formula.replace(/^\\\[\{(.*)\}\\\]$/, "$1").replace(/^\\\[(.*)\\\]$/, "$1");
+            $(img).replaceWith(`<span> $$${formula}$$ </span>`);
           }
         } else {
           if (_src.endsWith("gif")) {
