@@ -639,7 +639,7 @@ export async function getResponse({
               if ($codes.length > 0) {
                 const $code = $codes.eq(0);
                 const language = $code.attr("class").match(/language-(.*)/)?.[1] || "";
-                return `\`\`\`${language}
+                return `\`\`\`${language === "text" ? "" : language}
 ${$code.text().replace(/(\n)$/, "")}\`\`\``;
               }
             }
