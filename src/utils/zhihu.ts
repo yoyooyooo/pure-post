@@ -509,7 +509,8 @@ export async function getResponse({
     markdown,
     imagePrefix: isImagePrefix,
     markdownArray,
-    markdownHTML
+    markdownHTML,
+    latexWrap = "$$"
   } = (req.query as unknown) as ZHIHU.query;
   const isMarkdown = !!+markdown || !!+markdownArray || !!+markdownHTML;
 
@@ -535,7 +536,7 @@ export async function getResponse({
             const alt = $(img).attr("alt");
             let formula = alt === "[公式]" ? $(img).attr("data-formula") : alt;
             formula = formula.replace(/^\\\[\{(.*)\}\\\]$/, "$1").replace(/^\\\[(.*)\\\]$/, "$1");
-            $(img).replaceWith(`<span> $$${formula}$$ </span>`);
+            $(img).replaceWith(`<span> ${latexWrap}formula${latexWrap} </span>`);
           }
         } else {
           if (_src.endsWith("gif")) {
@@ -559,6 +560,16 @@ export async function getResponse({
           if (el.type === "text") {
             return el.data;
           } else if (el.type === "tag") {
+            // 图片
+            const $img = $(el).find("img");
+            const alt = $(el).find("figcaption").text();
+            const src = $img.attr("src");
+            const original = $img.attr("data-original");
+            const actualsrc = $img.attr("data-actualsrc");
+            let _src = original || actualsrc || src;
+            if (_src) {
+              return `![${alt.replace(/\[|\]/g, "")}](${_src})`;
+            }
             // 链接
             $(el)
               .find("a")
@@ -596,15 +607,15 @@ export async function getResponse({
             if (el.name === "blockquote") {
               return "> " + getMarkdown($(el).contents(), false).join("");
             }
-            if (el.name === "figure") {
-              const $img = $(el).find("img");
-              const alt = $(el).find("figcaption").text();
-              const src = $img.attr("src");
-              const original = $img.attr("data-original");
-              const actualsrc = $img.attr("data-actualsrc");
-              let _src = original || actualsrc || src;
-              return `![${alt.replace(/\[|\]/g, "")}](${_src})`;
-            }
+            // if (el.name === "figure") {
+            //   const $img = $(el).find("img");
+            //   const alt = $(el).find("figcaption").text();
+            //   const src = $img.attr("src");
+            //   const original = $img.attr("data-original");
+            //   const actualsrc = $img.attr("data-actualsrc");
+            //   let _src = original || actualsrc || src;
+            //   return `![${alt.replace(/\[|\]/g, "")}](${_src})`;
+            // }
             if (el.name === "hr") {
               return "---";
             }

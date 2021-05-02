@@ -5,5 +5,6 @@ declare namespace ZHIHU {
     markdownArray?: "0" | "1";
     markdownHTML?: "0" | "1";
     imagePrefix?: boolean;
+    latexWrap?: string;
   }
 }
