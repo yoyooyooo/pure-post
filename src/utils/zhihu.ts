@@ -536,7 +536,7 @@ export async function getResponse({
             const alt = $(img).attr("alt");
             let formula = alt === "[公式]" ? $(img).attr("data-formula") : alt;
             formula = formula.replace(/^\\\[\{(.*)\}\\\]$/, "$1").replace(/^\\\[(.*)\\\]$/, "$1");
-            $(img).replaceWith(`<span> ${latexWrap}formula${latexWrap} </span>`);
+            $(img).replaceWith(`<span> ${latexWrap}${formula}${latexWrap} </span>`);
           }
         } else {
           if (_src.endsWith("gif")) {
