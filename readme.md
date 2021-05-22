@@ -3,7 +3,7 @@
 ## 参数说明
 
 - url: url= 后面输入知乎地址
-  https://pure-post.vercel.app/api/index?url=https://www.zhihu.com/question/20099757/answer/312670291
+  `https://pure-post.vercel.app/api/index?url=https://www.zhihu.com/question/20099757/answer/312670291`
 - `markdownHTML=1`，展示成 markdown
   `https://pure-post.vercel.app/api/index?url=https://www.zhihu.com/question/20099757/answer/312670291&markdownHTML=1`
 - `markdownArray=1`，markdown 接口，返回数组：
