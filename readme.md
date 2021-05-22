@@ -1,1 +1,14 @@
 为保存知乎文章，保留干净的文章内容
+
+## 参数说明
+
+- url: url= 后面输入知乎地址
+  https://pure-post.vercel.app/api/index?url=https://www.zhihu.com/question/20099757/answer/312670291
+- `markdownHTML=1`，展示成 markdown
+  `https://pure-post.vercel.app/api/index?url=https://www.zhihu.com/question/20099757/answer/312670291&markdownHTML=1`
+- `markdownArray=1`，markdown 接口，返回数组：
+  `https://pure-post.vercel.app/api/index?url=https://www.zhihu.com/question/20099757/answer/312670291&markdownArray=1`
+- `latexWrap=$`，latex 包裹符号，默认为`$$`，可以改成别的：
+  `https://pure-post.vercel.app/api/index?url=https://www.zhihu.com/question/20099757/answer/312670291&markdownHTML=1&latexWrap=$`
+- `markdown=1`，markdown 纯文本，用浏览器打开会展示不了换行，所以有了`markdownHTML=1`，不过接口请求还会保留换行
+  `https://pure-post.vercel.app/api/index?url=https://www.zhihu.com/question/20099757/answer/312670291&markdown=1`
