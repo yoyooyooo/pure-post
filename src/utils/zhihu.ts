@@ -486,24 +486,22 @@ export function getFinalHTML({
   `;
 }
 
-export async function getResponse({
+export async function getResult({
   $,
   contentNode,
-  res,
-  req,
+  query,
   wrapHTML,
   title,
   detail
 }: {
   $: any;
   contentNode: any;
-  req: VercelRequest;
-  res: VercelResponse;
+  query: VercelRequest["query"];
   wrapHTML: boolean;
   title?: string;
   detail?: string;
 }) {
-  console.log("getResponse", req.query);
+  console.log("query", query);
   const {
     url,
     markdown,
@@ -511,7 +509,7 @@ export async function getResponse({
     markdownArray,
     markdownHTML,
     latexWrap = "$$"
-  } = req.query as unknown as ZHIHU.query;
+  } = query as unknown as ZHIHU.query;
   const isMarkdown = !!+markdown || !!+markdownArray || !!+markdownHTML;
 
   const imagePrefix = isImagePrefix
@@ -524,7 +522,6 @@ export async function getResponse({
       const original = $(img).attr("data-original");
       const actualsrc = $(img).attr("data-actualsrc");
       let _src = original || actualsrc || src;
-
       const srcset = $(img).attr("srcset");
       srcset &&
         $(img).attr("srcset", srcset.replace(/(https.*?\.(jpg|png|jpeg))/g, `${imagePrefix}$1`));
@@ -551,6 +548,12 @@ export async function getResponse({
 
   const imgs = $(contentNode).find("img");
   handleImages(imgs);
+
+  const texes = $(contentNode).find(".ztext-math");
+  texes.map((i, tex) => {
+    const t = $(tex).attr("data-tex");
+    $(tex).replaceWith(`<span> ${latexWrap}${t}${latexWrap} </span>`);
+  });
 
   if (isMarkdown) {
     const getMarkdown = (children, filter = true) => {
@@ -670,17 +673,15 @@ ${$code.text().replace(/(\n)$/, "")}\`\`\``;
     const head = [title, detail].filter(Boolean);
     head.length && list.unshift(...head, "---");
     if (markdownHTML) {
-      res.send(list.map((a) => `<p>${a}</p>`).join("\n"));
-      return;
+      return list.map((a) => `<p>${a}</p>`).join("\n");
     } else {
-      res.send(!!+markdownArray ? list : list.join("\n"));
-      return;
+      return !!+markdownArray ? list : list.join("\n");
     }
   }
 
   if (wrapHTML) {
-    res.send(getFinalHTML({ title, html: contentNode.html() }));
+    return getFinalHTML({ title, html: contentNode.html() });
   } else {
-    res.send($.html());
+    return $.html();
   }
 }
