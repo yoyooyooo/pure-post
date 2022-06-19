@@ -1,16 +1,11 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import axios from "axios";
 import cheerio from "cheerio";
-import { getQuestionDetial, getQuestionId, getResponse } from "../utils/zhihu";
+import { getQuestionDetail, getQuestionId, getResponse } from "../utils/zhihu";
 
 export default async (req: VercelRequest, res: VercelResponse) => {
-  const {
-    url,
-    markdown,
-    markdownArray,
-    markdownHTML,
-    imagePrefix
-  } = (req.query as unknown) as ZHIHU.query;
+  const { url, markdown, markdownArray, markdownHTML, imagePrefix } =
+    req.query as unknown as ZHIHU.query;
   const _url = url.split("?")[0];
   console.log(`url  ===>  ${url}`);
   const { data } = await axios(_url, {
@@ -32,7 +27,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     title = $(".Post-Header .Post-Title").text();
   } else {
     contentNode = $(".QuestionAnswer-content .RichText");
-    const titleDetail = (await getQuestionDetial(getQuestionId(url))) || {};
+    const titleDetail = (await getQuestionDetail(getQuestionId(url))) || {};
     detail = titleDetail.detail;
     title = $(".QuestionHeader-title").text() || titleDetail.title;
   }

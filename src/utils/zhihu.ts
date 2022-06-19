@@ -3,10 +3,10 @@ import cheerio from "cheerio";
 import axios from "axios";
 
 export function getQuestionId(url: string) {
-  return url.match(/.*question\/(.+)\/answer.*/)[1];
+  return url.match(/.*question\/(.+)\/answer.*/)?.[1];
 }
 
-export async function getQuestionDetial(questionId: string) {
+export async function getQuestionDetail(questionId: string) {
   try {
     const res = await axios(
       `https://www.zhihu.com/api/v4/questions/${questionId}?include=data%5B*%5D.excerpt,content,detail`
@@ -511,7 +511,7 @@ export async function getResponse({
     markdownArray,
     markdownHTML,
     latexWrap = "$$"
-  } = (req.query as unknown) as ZHIHU.query;
+  } = req.query as unknown as ZHIHU.query;
   const isMarkdown = !!+markdown || !!+markdownArray || !!+markdownHTML;
 
   const imagePrefix = isImagePrefix
