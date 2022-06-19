@@ -9,7 +9,7 @@
     "resolveJsonModule": true,
     "downlevelIteration": true,
     "baseUrl": ".",
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "dom"],
     "paths": {
       "@/*": ["src/*"]
     }
