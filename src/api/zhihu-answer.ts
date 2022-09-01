@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import axios from "axios";
 import cheerio from "cheerio";
-import { getQuestionDetail, getQuestionId, getResponse } from "../utils/zhihu";
+import { getQuestionDetail, getQuestionId, getResult } from "../utils/zhihu";
 
 export default async (req: VercelRequest, res: VercelResponse) => {
   const { url, markdown, markdownArray, markdownHTML, imagePrefix } =
@@ -53,5 +53,13 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
   }
 
-  getResponse({ res, req, $, contentNode, title, detail, wrapHTML: true });
+  const result = await getResult({
+    query: req.query,
+    $,
+    contentNode,
+    title,
+    detail,
+    wrapHTML: true
+  });
+  res.send(result);
 };

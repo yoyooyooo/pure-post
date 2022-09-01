@@ -1,4 +1,4 @@
-import { getResponse } from "../utils/zhihu";
+import { getResult } from "../utils/zhihu";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import axios from "axios";
 import cheerio from "cheerio";
@@ -30,5 +30,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   const contentNode = $(".answer .content");
   const title = $(".DailyHeader-title").text();
 
-  getResponse({ res, req, $, contentNode, title, wrapHTML: false });
+  const result = await getResult({ query: req.query, $, contentNode, title, wrapHTML: false });
+  res.send(result);
 };
