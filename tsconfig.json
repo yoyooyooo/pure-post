@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
+    "module": "NodeNext",
+    "target": "ES2022",
     "noImplicitAny": false,
     "outDir": "./dist",
     "sourceMap": true,
@@ -9,7 +9,7 @@
     "resolveJsonModule": true,
     "downlevelIteration": true,
     "baseUrl": ".",
-    "lib": ["ESNext", "dom"],
+    "lib": ["ESNext", "dom", "ES2022"],
     "paths": {
       "@/*": ["src/*"]
     }
